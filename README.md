@@ -7,3 +7,17 @@ support package name:
 
 - com.android.documentsui
 - com.google.android.documentsui
+
+## Build the app
+
+```shell
+./gradlew build
+```
+
+Generates an apk with a self-signed signature
+
+## Install the app
+
+```shell
+adb install app/build/outputs/apk/release/app-release.apk 
+```

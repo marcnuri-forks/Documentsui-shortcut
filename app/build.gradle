@@ -3,6 +3,20 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+def alias = 'com.documentsui.shortcut'
+def password = 'a-password'
+def fileName = 'com.documentsui.shortcut.keystore'
+
+tasks.register('deleteKeystore', Delete) {
+    delete fileName
+}
+tasks.register('generateCertificates', Exec) {
+    commandLine 'keytool', '-genkey', '-v', '-keystore', fileName, '-storepass', password, '-alias', alias, '-keypass', password, '-keyalg', 'RSA', '-keysize', '2048', '-validity', '10000', '-dname', 'CN=Android Debug,O=Android,C=US'
+}
+
+generateCertificates.dependsOn deleteKeystore
+build.dependsOn generateCertificates
+
 android {
     namespace 'com.documentsui.shortcut'
     compileSdk 33
@@ -13,11 +27,20 @@ android {
         targetSdk 33
         versionCode 2
         versionName "1.1"
+    }
 
+    signingConfigs {
+        release{
+            storeFile file(fileName)
+            storePassword password
+            keyAlias alias
+            keyPassword password
+        }
     }
 
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -33,6 +56,6 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }
